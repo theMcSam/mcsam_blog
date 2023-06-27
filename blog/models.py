@@ -10,8 +10,8 @@ class User(Base):
     password = Column(String, nullable=False)
     email = Column(String, nullable=True)
     date_created = Column(DateTime, nullable=False, default=datetime.utcnow)
-    post = relationship("posts")
-    comment = relationship("comments")
+    post = relationship("Post")
+    comment = relationship("Comment")
     
 
     def __init__(self, user_id, username, password, email):
@@ -29,7 +29,7 @@ class Post(Base):
     date_created = Column(DateTime, nullable=False, default=datetime.utcnow)
     post_author= Column(String, ForeignKey("users.user_id"))
     user = relationship("User", back_populates="post")
-    comment = relationship("Comments")
+    comment = relationship("Comment")
     
 
     def __init__(self, post_id, title, views, post_author):
