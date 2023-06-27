@@ -30,6 +30,11 @@ class Post(Base):
         self.title = title
         self.views = views
         self.post_author = post_author
+
+class Comment(Base):
+    __tablename__ = "comments"
+    comment_id = Column(String, nullable=False, primary_key=True)
+    date_created = Column(DateTime, nullable=False, default=datetime.utcnow)
 # blog model
 # author
 # comments
