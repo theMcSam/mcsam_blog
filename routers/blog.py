@@ -54,11 +54,11 @@ def get_blog_post(post_id: str):
         post.views += 1
 
         comments = db_session.query(Comment).filter(Comment.post_id == post_id).all()
+        print("-"*100)
+        print(comments)
+        print("-"*100)
         author = get_username_by_id(post.post_author)
         if comments != []:
-            print("-"*100)
-            print(comments)
-            print("-"*100)
             return {
                     "title": post.title,
                     "post_content": post.post_content,
