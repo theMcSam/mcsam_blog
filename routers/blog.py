@@ -26,7 +26,7 @@ def verify_token(req: Request):
         return False
 
 @blog.post("/api/blog/create-post")
-async def create_blog_post(blog_post: CreateBlogPost, req: Request,authorized: bool = Depends(verify_token)):
+def create_blog_post(blog_post: CreateBlogPost, req: Request,authorized: bool = Depends(verify_token)):
     if not authorized:
         raise HTTPException(status_code=403, detail="You are not authorized to make this request.")
     
@@ -48,12 +48,12 @@ async def create_blog_post(blog_post: CreateBlogPost, req: Request,authorized: b
         }
 
 @blog.get("/api/blog/get-post/{post_id}")
-async def get_blog_post(post_id: str):
+def get_blog_post(post_id: str):
     post = db_session.query(Post).filter(Post.post_id == post_id).first()
     if post:
         post.views += 1
 
-        comments = await db_session.query(Comment).filter(Comment.post_id == post_id).all()
+        comments = db_session.query(Comment).filter(Comment.post_id == post_id).all()
         author = get_username_by_id(post.post_author)
         return {
                 "title": post.title,
@@ -70,12 +70,12 @@ async def get_blog_post(post_id: str):
     raise HTTPException(400, "Post not found in database.")
 
 @blog.get("/api/blog/get-all-posts")
-async def get_all_blog_posts():
-    posts = await db_session.query(Post).all()
+def get_all_blog_posts():
+    posts =  db_session.query(Post).all()
     return posts
 
 @blog.put("/api/blog/update/{post_id}")
-async def update_blog_post(post_id, post: UpdateBlogPost, req: Request, authorized: bool = Depends(verify_token)):
+def update_blog_post(post_id, post: UpdateBlogPost, req: Request, authorized: bool = Depends(verify_token)):
     if authorized:
         token = req.headers["Authorization"]
         jwt_payload = jwt.decode(token, os.environ.get("JWT_SECRET_KEY"), algorithms="HS256")
@@ -105,12 +105,12 @@ async def update_blog_post(post_id, post: UpdateBlogPost, req: Request, authoriz
             
 
 @blog.delete("/api/blog/delete/{post_id}")
-async def delete_blog_post(post_id, req:Request, authorized: bool = Depends(verify_token)):
+def delete_blog_post(post_id, req:Request, authorized: bool = Depends(verify_token)):
     if authorized:
         user_id = get_user_id_from_token(req.headers["Authorization"])
 
         if post_owner(user_id, post_id):
-            post = await db_session.query(Post).get(post_id)
+            post =  db_session.query(Post).get(post_id)
             if post:
                 db_session.delete(post)
                 db_session.commit()
@@ -125,7 +125,7 @@ async def delete_blog_post(post_id, req:Request, authorized: bool = Depends(veri
 
 
 @blog.post("/api/blog/comment/{post_id}")
-async def comment_on_blog_post(post_id, comment: CommentOnPost, req: Request, authorized: bool = Depends(verify_token)):
+def comment_on_blog_post(post_id, comment: CommentOnPost, req: Request, authorized: bool = Depends(verify_token)):
     if authorized:
         user_id = get_user_id_from_token(req.headers["Authorization"])
         comment_id = uuid4()
@@ -142,12 +142,12 @@ async def comment_on_blog_post(post_id, comment: CommentOnPost, req: Request, au
     raise HTTPException(403, "You are not authorized to perform this action.")
 
 @blog.put("/api/blog/comment/update/{comment_id}")
-async def update_comment(comment_id, comment: UpdateComment, req: Request, authorized: bool = Depends(verify_token)):
+def update_comment(comment_id, comment: UpdateComment, req: Request, authorized: bool = Depends(verify_token)):
     if authorized:
         user_id = get_user_id_from_token(req.headers["Authorization"])
 
         if comment_owner(user_id, comment_id):
-            comment_to_update = await db_session.query(Comment).get(comment_id)
+            comment_to_update =  db_session.query(Comment).get(comment_id)
 
             if not comment_to_update:
                 raise HTTPException(status_code=400, detail="Comment does not exist in the database.")
@@ -168,12 +168,12 @@ async def update_comment(comment_id, comment: UpdateComment, req: Request, autho
     raise HTTPException(403, "You are not authorized to perform this action.")
 
 @blog.delete("/api/blog/comment/delete/{comment_id}")
-async def delete_comment(comment_id, req: Request, authorized: bool = Depends(verify_token)):
+def delete_comment(comment_id, req: Request, authorized: bool = Depends(verify_token)):
     if authorized:
         user_id = get_user_id_from_token(req.headers["Authorization"])
 
         if comment_owner(user_id, comment_id):
-            comment = await db_session.query(Comment).get(comment_id)
+            comment =  db_session.query(Comment).get(comment_id)
 
             if comment:
                 db_session.delete(comment)

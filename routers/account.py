@@ -32,7 +32,7 @@ def verify_token(req: Request):
 #     raise HTTPException(404, "User does not exist.")
 
 @account.delete("/api/account/delete/{account_id}")
-async def delete_account(account_id, account: Account, req: Request, authorized: bool = Depends(verify_token)):
+def delete_account(account_id, account: Account, req: Request, authorized: bool = Depends(verify_token)):
     if not authorized:
         raise HTTPException(403, "You are not authorized.")
     
@@ -40,7 +40,7 @@ async def delete_account(account_id, account: Account, req: Request, authorized:
     if not account_owner(user_id, account_id):
         raise HTTPException(403, "You do not own this account.")
 
-    user = await db_session.query(User).filter(User.user_id == user_id).first()
+    user = db_session.query(User).filter(User.user_id == user_id).first()
     if user:
         if bcrypt.checkpw(account.password.encode(), str(user.password).encode()):
             db_session.delete(user)
