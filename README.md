@@ -30,6 +30,7 @@ Blogging API written with the FastAPI framework in python3.
 ## API documentation
 Visit the url: https://blogging-api-qpax.onrender.com/docs/ or
 
+### Authnetication
 End point: /api/auth/signup<br>
 Request methos: POST <br>
 Request body: 
@@ -52,6 +53,7 @@ Request body:
 ```
 NB: After logging in you will be given a jwt in which you can use to authorized other requests by including it in the request headers. <br>
 
+### CRUD Operations on Posts
 End point: /api/blog/create-post<br>
 Request methos: POST
 Request headers: Authorization jwt_token<br>
@@ -63,16 +65,6 @@ Request body:
 }
 ```
 NB: The jwt_token will be provided to you after logging in.
-
-End point: /api/blog/get-post/{post_id} <br>
-Request method: GET<br>
-Request headers: Authorization jwt_token <br>
-No request body.
-
-End point: /api/blog/get-all-posts<br>
-Request method: GET <br>
-No Request headers<br>
-No Request body
 
 End point: /api/blog/update/{post_id}<br>
 Request method: PUT <br>
@@ -90,6 +82,21 @@ Request method: DELETE<br>
 Request headers: Authorization jwt_token<br>
 No request body.
 
+### Getting Posts
+End point: /api/blog/get-post/{post_id} <br>
+Request method: GET<br>
+Request headers: Authorization jwt_token <br>
+```No request body.```
+
+### Getting all posts
+End point: /api/blog/get-all-posts<br>
+Request method: GET <br>
+```
+No Request headers
+No Request body
+```
+
+### CRUD Operations on comments
 End point: /api/blog/comment/{post_id}<br>
 Request method: POST<br>
 Request headers: Authorization jwt_token<br>
@@ -115,6 +122,7 @@ Request method: DELETE<br>
 Request headers: Authorization jwt_token<br>
 No Request body.
 
+### Deleting User account
 End point: /api/account/delete/{account_id}
 Request method: DELETE<br>
 Request headers: Authorization jwt_token<br>
