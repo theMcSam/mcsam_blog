@@ -12,3 +12,15 @@ Blogging API written with the FastAPI framework in python3.
 8. Updating  comments.
 9. Deleting comments.
 
+## How to run the application
+1. Clone the repository.<br>
+```git clone https://github.com/theMcSam/mcsam_blog.git```
+
+2. Change your current working directory.<br>
+```cd mcsam_blog```
+
+3. Install the necessary requirements.<br>
+```pip install -r requirements.txt```
+
+4. Run the application with uvicorn.<br>
+```uvicorn app:app --reload```
