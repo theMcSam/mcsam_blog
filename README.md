@@ -28,7 +28,37 @@ Blogging API written with the FastAPI framework in python3.
 ```uvicorn app:app --reload```
 
 ## API documentation
-Visit the url: https://blogging-api-qpax.onrender.com/docs/
+Visit the url: https://blogging-api-qpax.onrender.com/docs/ or
+
+End point: /api/auth/signup<br>
+Request body: 
+```json
+{
+  "username": "string",
+  "password": "password",
+  "email": "mail@mail.com"
+}
+```
+
+End point: /api/auth/login<br>
+Request body: 
+```json
+{
+  "username": "string",
+  "password": "password"
+} 
+```
+NB: After logging in you will be given a jwt in which you can use to authorized other requests by including it in the request headers. <br>
+
+End point: /api/blog/create-post<br>
+Request headers: Authorization jwt_token<br>
+Request body:
+```json 
+{
+  "title": "string",
+  "content": "string"
+}
+```
 
 ## Deployed application
 Visit the url: https://blogging-api-qpax.onrender.com/
