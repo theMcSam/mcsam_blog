@@ -28,6 +28,14 @@ def comment_owner(user_id, comment_id):
     
     return False
 
+def account_owner(user_id, account_id):
+    user = db_session.query(User).filter(User.user_id == user_id).first()
+
+    if user.user_id == account_id:
+        return True
+    
+    return False
+
 
 def get_user_id_from_token(token):
     jwt_payload = jwt.decode(token, os.environ.get("JWT_SECRET_KEY"), algorithms="HS256")
