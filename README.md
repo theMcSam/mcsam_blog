@@ -7,10 +7,12 @@ Blogging API written with the FastAPI framework in python3.
 3. Deleting an account.
 4. Create blog posts.
 5. Updating blog posts.
-6. Deleting blog posts.
-7. Commenting on blog posts.
-8. Updating  comments.
-9. Deleting comments.
+6. View one blog post.
+7. Get all blog posts.
+8. Deleting blog posts.
+9. Commenting on blog posts.
+10. Updating  comments.
+11. Deleting comments.
 
 ## How to run the application
 1. Clone the repository.<br>
@@ -24,3 +26,6 @@ Blogging API written with the FastAPI framework in python3.
 
 4. Run the application with uvicorn.<br>
 ```uvicorn app:app --reload```
+
+## API documentation
+Visit the url: 
