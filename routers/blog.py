@@ -87,13 +87,15 @@ def update_blog_post(post_id, post: UpdateBlogPost, req: Request, authorized: bo
 
         user_id = jwt_payload["user_id"]
 
-        if not post_owner(user_id, post_id):
-            raise HTTPException(403, "You do now own this post.")
-        
         post_to_update = db_session.query(Post).get(post_id)
 
         if not post_to_update:
             raise HTTPException(status_code=400, detail="Post does not exist in the database")
+
+        if not post_owner(user_id, post_id):
+            raise HTTPException(403, "You do not own this post.")
+        
+        
 
         # Update the attributes dynamically based on the provided values
         for attr, value in post.dict().items():
@@ -156,12 +158,12 @@ def update_comment(comment_id, comment: UpdateComment, req: Request, authorized:
     if authorized:
         user_id = get_user_id_from_token(req.headers["Authorization"])
 
+        comment_to_update =  db_session.query(Comment).get(comment_id)
+
+        if not comment_to_update:
+            raise HTTPException(status_code=400, detail="Comment does not exist in the database.")
+        
         if comment_owner(user_id, comment_id):
-            comment_to_update =  db_session.query(Comment).get(comment_id)
-
-            if not comment_to_update:
-                raise HTTPException(status_code=400, detail="Comment does not exist in the database.")
-
             # Update the attributes dynamically based on the provided values
             for attr, value in comment.dict().items():
                 if value is not None:
