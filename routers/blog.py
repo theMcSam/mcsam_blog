@@ -186,7 +186,7 @@ def delete_comment(comment_id, req: Request, authorized: bool = Depends(verify_t
             if comment:
                 db_session.delete(comment)
                 db_session.commit()
-                raise HTTPException(204, "Comment deleted successfully.")
+                raise HTTPException(201, "Comment deleted successfully.")
             
             raise HTTPException(404, "Comment does not exist.")
         
