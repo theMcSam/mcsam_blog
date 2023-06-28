@@ -95,8 +95,6 @@ def update_blog_post(post_id, post: UpdateBlogPost, req: Request, authorized: bo
         if not post_owner(user_id, post_id):
             raise HTTPException(403, "You do not own this post.")
         
-        
-
         # Update the attributes dynamically based on the provided values
         for attr, value in post.dict().items():
             if value is not None:
@@ -165,10 +163,7 @@ def update_comment(comment_id, comment: UpdateComment, req: Request, authorized:
         
         if comment_owner(user_id, comment_id):
             # Update the attributes dynamically based on the provided values
-            for attr, value in comment.dict().items():
-                if value is not None:
-                    setattr(comment_to_update, attr, value)
-
+            comment_to_update.comment = comment.content
             db_session.commit()
 
             return {
