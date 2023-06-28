@@ -28,14 +28,14 @@ def verify_token(req: Request):
 @blog.post("/api/blog/create-post")
 def create_blog_post(blog_post: CreateBlogPost, req: Request,authorized: bool = Depends(verify_token)):
     if not authorized:
-        return HTTPException(status_code=403, detail="You are not authorized to make this request.")
+        raise HTTPException(status_code=403, detail="You are not authorized to make this request.")
     
     user_id = get_user_id_from_token(req.headers["Authorization"])
 
     post_id = uuid4()
 
     if blog_post.title == "" :
-        return HTTPException(400, "Missing form items.")
+        raise HTTPException(400, "Missing form items.")
     
     post = Post(post_id, title=blog_post.title, post_author=user_id, post_content=blog_post.content)
 
@@ -67,7 +67,7 @@ def get_blog_post(post_id: str):
                     },    
         }
     
-    return HTTPException(400, "Post not found in database.")
+    raise HTTPException(400, "Post not found in database.")
 
 @blog.get("/api/blog/get-all-posts")
 def get_all_blog_posts():
@@ -83,7 +83,7 @@ def update_blog_post(post_id, post: UpdateBlogPost, req: Request, authorized: bo
         user_id = jwt_payload["user_id"]
 
         if not post_owner(user_id, post_id):
-            return HTTPException(403, "You do now own this post.")
+            raise HTTPException(403, "You do now own this post.")
         
         post_to_update = db_session.query(Post).get(post_id)
 
@@ -101,7 +101,7 @@ def update_blog_post(post_id, post: UpdateBlogPost, req: Request, authorized: bo
             "msg": "Updated successfully."
             }
     
-    return HTTPException(403, "You are not authorized.")
+    raise HTTPException(403, "You are not authorized.")
             
 
 @blog.delete("/api/blog/delete/{post_id}")
@@ -115,13 +115,13 @@ def delete_blog_post(post_id, req:Request, authorized: bool = Depends(verify_tok
                 db_session.delete(post)
                 db_session.commit()
 
-                return HTTPException(201, "Post deleted successfully.")
+                raise HTTPException(201, "Post deleted successfully.")
             
-            return HTTPException(404, "Post does not exist.")
+            raise HTTPException(404, "Post does not exist.")
         
-        return HTTPException(403, "You do not own this post.")
+        raise HTTPException(403, "You do not own this post.")
     
-    return HTTPException(403, "You are not authorized to perform this action.")
+    raise HTTPException(403, "You are not authorized to perform this action.")
 
 
 @blog.post("/api/blog/comment/{post_id}")
@@ -130,16 +130,16 @@ def comment_on_blog_post(post_id, comment: CommentOnPost, req: Request, authoriz
         user_id = get_user_id_from_token(req.headers["Authorization"])
         comment_id = uuid4()
         if comment.content == "":
-            return HTTPException(400, "Comment cannot be empty.")
+            raise HTTPException(400, "Comment cannot be empty.")
         
         comment_obj = Comment(comment_id, comment.content, user_id, post_id)
 
         db_session.add(comment_obj)
         db_session.commit()
 
-        return HTTPException(201, "Comment created")
+        raise HTTPException(201, "Comment created")
     
-    return HTTPException(403, "You are not authorized to perform this action.")
+    raise HTTPException(403, "You are not authorized to perform this action.")
 
 @blog.put("/api/blog/comment/update/{comment_id}")
 def update_comment(comment_id, comment: UpdateComment, req: Request, authorized: bool = Depends(verify_token)):
@@ -163,9 +163,9 @@ def update_comment(comment_id, comment: UpdateComment, req: Request, authorized:
                 "msg": "Comment updated successfully",
                 "comment_id": comment_id 
                 }
-        return HTTPException(403, "You do not own this comment.")
+        raise HTTPException(403, "You do not own this comment.")
     
-    return HTTPException(403, "You are not authorized to perform this action.")
+    raise HTTPException(403, "You are not authorized to perform this action.")
 
 @blog.delete("/api/blog/comment/delete/{comment_id}")
 def delete_comment(comment_id, req: Request, authorized: bool = Depends(verify_token)):
@@ -178,12 +178,12 @@ def delete_comment(comment_id, req: Request, authorized: bool = Depends(verify_t
             if comment:
                 db_session.delete(comment)
                 db_session.commit()
-                return HTTPException(204, "Comment deleted successfully.")
+                raise HTTPException(204, "Comment deleted successfully.")
             
-            return HTTPException(404, "Comment does not exist.")
+            raise HTTPException(404, "Comment does not exist.")
         
-        return HTTPException(403, "You are not authorized to perform this action.")
+        raise HTTPException(403, "You are not authorized to perform this action.")
     
-    return HTTPException(403, "You are not authorized to perform this action.")
+    raise HTTPException(403, "You are not authorized to perform this action.")
 
 

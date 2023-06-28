@@ -7,8 +7,6 @@ from uuid import uuid4
 import os
 import bcrypt
 import jwt
-import dotenv
-
 
 auth = APIRouter()
 JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
