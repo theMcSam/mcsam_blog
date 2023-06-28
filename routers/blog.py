@@ -58,26 +58,27 @@ def get_blog_post(post_id: str):
         print(comments)
         print("-"*100)
         author = get_username_by_id(post.post_author)
-        if comments != []:
-            return {
-                    "title": post.title,
-                    "post_content": post.post_content,
-                    "post_author": author,
-                    "post_id": post.post_id,
-                    "views": post.views,
-                    "date_created": post.date_created,
-                    "Comments": {
-                        get_username_by_id(comment.user_id): comment.comment for comment in comments
-                        },    
-            }
+        # if comments != []:
         return {
                 "title": post.title,
                 "post_content": post.post_content,
                 "post_author": author,
                 "post_id": post.post_id,
                 "views": post.views,
-                "date_created": post.date_created,   
-            }
+                "date_created": post.date_created,
+                "Comments": {
+                    get_username_by_id(comment.user_id): comment.comment for comment in comments
+                    } if comments != [] else comments    
+        }
+        
+        # return {
+        #         "title": post.title,
+        #         "post_content": post.post_content,
+        #         "post_author": author,
+        #         "post_id": post.post_id,
+        #         "views": post.views,
+        #         "date_created": post.date_created,   
+        #     }
     
     raise HTTPException(400, "Post not found in database.")
 
