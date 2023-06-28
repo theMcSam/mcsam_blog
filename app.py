@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from routers.auth import auth
+from routers.blog import blog
 
 app = FastAPI()
 
@@ -10,3 +11,4 @@ def web_root():
     }
 
 app.include_router(auth)
+app.include_router(blog)

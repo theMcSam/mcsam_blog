@@ -7,24 +7,24 @@ from uuid import uuid4
 import os
 import bcrypt
 import jwt
+import dotenv
 
 
 auth = APIRouter()
-JWT_SECRET_KEY = os.environ.get("JWT_SECREY_KEY")
+JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
 
 @auth.post("/api/auth/login")
 def login(user: UserLogin):
-    user = db_session.query(User).filter(User.username == user.username).first()
+    user_obj = db_session.query(User).filter(User.username == user.username).first()
 
-    if user and bcrypt.checkpw(user.password.encode(), str(user.password).encode()):
-        token=""
-        if user.is_admin:
-            jwt_payload = {"username": user.username, "user_id": user.user_id}
-            token = jwt.encode(jwt_payload, JWT_SECRET_KEY, algorithm="HS256")
+    if user_obj and bcrypt.checkpw(user.password.encode(), str(user_obj.password).encode()):
+        jwt_payload = {"username": user.username, "user_id": user_obj.user_id}
+        print(f"-----------\n{JWT_SECRET_KEY}\n------------------")
+        token = jwt.encode(jwt_payload, JWT_SECRET_KEY, algorithm="HS256")
 
         return {
             "msg":"Logged in successfully.",
-            "user_id": user.user_id,
+            "user_id": user_obj.user_id,
             "token": token
         }
        

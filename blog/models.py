@@ -6,7 +6,7 @@ from datetime import datetime
 class User(Base):
     __tablename__ = "users"
     user_id = Column(String, nullable=False, primary_key=True)
-    username = Column(String, nullable=False)
+    username = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
     email = Column(String, nullable=True)
     date_created = Column(DateTime, nullable=False, default=datetime.utcnow)
@@ -32,11 +32,11 @@ class Post(Base):
     comment = relationship("Comment")
     
 
-    def __init__(self, post_id, title, views, post_author):
+    def __init__(self, post_id, title, post_author, post_content):
         self.post_id = post_id
         self.title = title
-        self.views = views
         self.post_author = post_author
+        self.post_content = post_content
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -48,5 +48,11 @@ class Comment(Base):
 
     user_id = Column(String, ForeignKey("users.user_id"))
     user = relationship("User", back_populates="comment")
+
+    def __init__(self, comment_id, comment, user_id, post_id):
+        self.comment_id = comment_id
+        self.comment = comment
+        self.user_id = user_id
+        self.post_id = post_id
 
 Base.metadata.create_all(bind=engine)
