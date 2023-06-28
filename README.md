@@ -31,6 +31,7 @@ Blogging API written with the FastAPI framework in python3.
 Visit the url: https://blogging-api-qpax.onrender.com/docs/ or
 
 End point: /api/auth/signup<br>
+Request methos: POST <br>
 Request body: 
 ```json
 {
@@ -41,6 +42,7 @@ Request body:
 ```
 
 End point: /api/auth/login<br>
+Request metho: POST <br>
 Request body: 
 ```json
 {
@@ -51,6 +53,7 @@ Request body:
 NB: After logging in you will be given a jwt in which you can use to authorized other requests by including it in the request headers. <br>
 
 End point: /api/blog/create-post<br>
+Request methos: POST
 Request headers: Authorization jwt_token<br>
 Request body:
 ```json 
@@ -59,6 +62,64 @@ Request body:
   "content": "string"
 }
 ```
+NB: The jwt_token will be provided to you after logging in.
+
+End point: /api/blog/get-post/{post_id} <br>
+Request method: GET<br>
+Request headers: Authorization jwt_token <br>
+No request body.
+
+End point: /api/blog/get-all-posts<br>
+Request method: GET <br>
+No Request headers<br>
+No Request body
+
+End point: /api/blog/update/{post_id}<br>
+Request method: PUT <br>
+Request headers: Authorization jwt_token<br>
+Request Body:
+```json 
+{
+  "title": "string", #Optional
+  "content": "string" #Optional
+}
+```
+
+End point: /api/blog/delete/{post_id}<br>
+Request method: DELETE<br>
+Request headers: Authorization jwt_token<br>
+No request body.
+
+End point: /api/blog/comment/{post_id}<br>
+Request method: POST<br>
+Request headers: Authorization jwt_token<br>
+Request body:
+```json 
+{
+  "content": "string"
+}
+```
+
+End point: /api/blog/comment/update/{comment_id}<br>
+Request method: PUT<br>
+Request headers: Authorization jwt_token<br>
+Requst body:
+```json 
+{
+  "content": "string"
+}
+```
+
+End point: /api/blog/comment/delete/{comment_id}<br>
+Request method: DELETE<br>
+Request headers: Authorization jwt_token<br>
+No Request body.
+
+End point: /api/account/delete/{account_id}
+Request method: DELETE<br>
+Request headers: Authorization jwt_token<br>
+No Request body.
+
 
 ## Deployed application
 Visit the url: https://blogging-api-qpax.onrender.com/
