@@ -12,8 +12,8 @@ auth = APIRouter()
 JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
 
 @auth.post("/api/auth/login")
-def login(user: UserLogin):
-    user_obj = db_session.query(User).filter(User.username == user.username).first()
+async def login(user: UserLogin):
+    user_obj = await db_session.query(User).filter(User.username == user.username).first()
 
     if user_obj and bcrypt.checkpw(user.password.encode(), str(user_obj.password).encode()):
         jwt_payload = {"username": user.username, "user_id": user_obj.user_id}
@@ -30,15 +30,15 @@ def login(user: UserLogin):
     raise HTTPException(status_code=404, detail="Username or password is incorrect.")
 
 @auth.post("/api/auth/signup")
-def sign_up(user: UserSignUp):
+async def sign_up(user: UserSignUp):
     user_id = str(uuid4())
 
-    username_exists = db_session.query(User).filter(User.username == user.username).first()
+    username_exists = await db_session.query(User).filter(User.username == user.username).first()
 
     if username_exists:
         raise HTTPException(status_code=400, detail="Duplicate usernames not allowed.")
 
-    email_exists = db_session.query(User).filter(User.email == user.email).first()
+    email_exists = await db_session.query(User).filter(User.email == user.email).first()
 
     if  email_exists:
         raise HTTPException(status_code=400, detail="Email already exits.")

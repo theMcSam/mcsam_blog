@@ -4,32 +4,32 @@ from blog.models import User, Post, Comment
 import jwt
 import os
 
-def get_username_by_id(id: str):
-    user = db_session.query(User).filter(User.user_id == id).first()
+async def get_username_by_id(id: str):
+    user = await db_session.query(User).filter(User.user_id == id).first()
 
     if user:
         return user.username
     
     return ""
 
-def post_owner(user_id, post_id):
-    post = db_session.query(Post).filter(Post.post_id == post_id).first()
+async def post_owner(user_id, post_id):
+    post = await db_session.query(Post).filter(Post.post_id == post_id).first()
 
     if post.post_author == user_id:
         return True
     
     return False
 
-def comment_owner(user_id, comment_id):
-    comment = db_session.query(Comment).filter(Comment.comment_id == comment_id).first()
+async def comment_owner(user_id, comment_id):
+    comment = await db_session.query(Comment).filter(Comment.comment_id == comment_id).first()
 
     if  comment.user_id == user_id:
         return True
     
     return False
 
-def account_owner(user_id, account_id):
-    user = db_session.query(User).filter(User.user_id == user_id).first()
+async def account_owner(user_id, account_id):
+    user = await db_session.query(User).filter(User.user_id == user_id).first()
 
     if user.user_id == account_id:
         return True
