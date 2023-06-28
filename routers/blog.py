@@ -71,14 +71,6 @@ def get_blog_post(post_id: str):
                     } if comments != [] else comments    
         }
         
-        # return {
-        #         "title": post.title,
-        #         "post_content": post.post_content,
-        #         "post_author": author,
-        #         "post_id": post.post_id,
-        #         "views": post.views,
-        #         "date_created": post.date_created,   
-        #     }
     
     raise HTTPException(400, "Post not found in database.")
 
@@ -150,7 +142,10 @@ def comment_on_blog_post(post_id, comment: CommentOnPost, req: Request, authoriz
         db_session.add(comment_obj)
         db_session.commit()
 
-        raise HTTPException(201, "Comment created")
+        return {
+            "msg": "Comment created",
+            "comment_id": comment_id
+            }
     
     raise HTTPException(403, "You are not authorized to perform this action.")
 
