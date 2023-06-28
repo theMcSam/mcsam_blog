@@ -114,15 +114,17 @@ def delete_blog_post(post_id, req:Request, authorized: bool = Depends(verify_tok
     if authorized:
         user_id = get_user_id_from_token(req.headers["Authorization"])
 
-        if post_owner(user_id, post_id):
-            post =  db_session.query(Post).get(post_id)
-            if post:
-                db_session.delete(post)
-                db_session.commit()
-
-                raise HTTPException(201, "Post deleted successfully.")
-            
+        post =  db_session.query(Post).get(post_id)
+        if not post:
             raise HTTPException(404, "Post does not exist.")
+        
+        if post_owner(user_id, post_id):
+            db_session.delete(post)
+            db_session.commit()
+
+            raise HTTPException(201, "Post deleted successfully.")
+            
+            
         
         raise HTTPException(403, "You do not own this post.")
     
@@ -179,18 +181,18 @@ def update_comment(comment_id, comment: UpdateComment, req: Request, authorized:
 def delete_comment(comment_id, req: Request, authorized: bool = Depends(verify_token)):
     if authorized:
         user_id = get_user_id_from_token(req.headers["Authorization"])
+        comment =  db_session.query(Comment).get(comment_id)
 
-        if comment_owner(user_id, comment_id):
-            comment =  db_session.query(Comment).get(comment_id)
-
-            if comment:
-                db_session.delete(comment)
-                db_session.commit()
-                raise HTTPException(201, "Comment deleted successfully.")
-            
+        if not comment:
             raise HTTPException(404, "Comment does not exist.")
         
-        raise HTTPException(403, "You are not authorized to perform this action.")
+        if comment_owner(user_id, comment_id):
+            db_session.delete(comment)
+            db_session.commit()
+            raise HTTPException(201, "Comment deleted successfully.")
+            
+        
+        raise HTTPException(403, "You do not own this comment.")
     
     raise HTTPException(403, "You are not authorized to perform this action.")
 
