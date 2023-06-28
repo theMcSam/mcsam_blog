@@ -32,7 +32,7 @@ Visit the url: https://blogging-api-qpax.onrender.com/docs/ or
 
 ### Authnetication
 End point: /api/auth/signup<br>
-Request methos: POST <br>
+Request method: POST <br>
 Request body: 
 ```json
 {
@@ -43,7 +43,7 @@ Request body:
 ```
 
 End point: /api/auth/login<br>
-Request metho: POST <br>
+Request method: POST <br>
 Request body: 
 ```json
 {
@@ -55,7 +55,7 @@ NB: After logging in you will be given a jwt in which you can use to authorized 
 
 ### CRUD Operations on Posts
 End point: /api/blog/create-post<br>
-Request methos: POST
+Request method: POST
 Request headers: Authorization jwt_token<br>
 Request body:
 ```json 
@@ -80,7 +80,7 @@ Request Body:
 End point: /api/blog/delete/{post_id}<br>
 Request method: DELETE<br>
 Request headers: Authorization jwt_token<br>
-No request body.
+```No request body.```
 
 ### Getting Posts
 End point: /api/blog/get-post/{post_id} <br>
