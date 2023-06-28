@@ -55,7 +55,7 @@ def get_blog_post(post_id: str):
 
         comments = db_session.query(Comment).filter(Comment.post_id == post_id).all()
         author = get_username_by_id(post.post_author)
-        if comments == []:
+        if comments != []:
             return {
                     "title": post.title,
                     "post_content": post.post_content,
