@@ -28,4 +28,7 @@ Blogging API written with the FastAPI framework in python3.
 ```uvicorn app:app --reload```
 
 ## API documentation
-Visit the url: 
+Visit the url: https://blogging-api-qpax.onrender.com/docs/
+
+## Deployed application
+Visit the url: https://blogging-api-qpax.onrender.com/
