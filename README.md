@@ -120,13 +120,13 @@ Requst body:
 End point: /api/blog/comment/delete/{comment_id}<br>
 Request method: DELETE<br>
 Request headers: Authorization jwt_token<br>
-No Request body.
+```No Request body.```
 
 ### Deleting User account
 End point: /api/account/delete/{account_id}
 Request method: DELETE<br>
 Request headers: Authorization jwt_token<br>
-No Request body.
+```No Request body.```
 
 
 ## Deployed application
