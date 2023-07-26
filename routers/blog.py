@@ -11,7 +11,7 @@ from jwt import InvalidTokenError
 import jwt
 import os
 
-blog = APIRouter(prefix="/api/blog")
+blog = APIRouter(prefix="/api/blog", tags=["Blog Operations"])
 
 
 def verify_token(req: Request):
