@@ -13,4 +13,4 @@ engine = create_engine(
 )
 
 Session = sessionmaker(bind=engine)
-db_session =  Session()
+db_session = Session()
