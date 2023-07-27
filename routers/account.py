@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, status
 from blog.database import db_session
 from blog.errors import DeletedSuccessfully, IncorrectUsernameOrPassword, UnauthorizedUser
 from blog.models import User
@@ -37,11 +37,17 @@ def verify_token(req: Request):
 @account.delete("/{account_id}")
 def delete_account(account_id, accounts: Account, req: Request, authorized: bool = Depends(verify_token)):
     if not authorized:
-        raise UnauthorizedUser
+        raise UnauthorizedUser(
+            status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to perform this action."
+        )
 
     user_id = get_user_id_from_token(req.headers["Authorization"])
     if not account_owner(user_id, account_id):
-        raise UnauthorizedUser
+        raise UnauthorizedUser(
+            status.HTTP_401_UNAUTHORIZED,
+            detail="You are not authorized to perform this action."
+        )
 
     user = db_session.query(User).filter(User.user_id == user_id).first()
     if user:
@@ -49,8 +55,17 @@ def delete_account(account_id, accounts: Account, req: Request, authorized: bool
             db_session.delete(user)
             db_session.commit()
 
-            raise DeletedSuccessfully
+            raise DeletedSuccessfully(
+                status.HTTP_204_NO_CONTENT,
+                detail="Deleted successfully."
+            )
 
-        raise IncorrectUsernameOrPassword
+        raise IncorrectUsernameOrPassword(
+            status.HTTP_404_NOT_FOUND,
+            detail="Incorrect username or password."
+        )
 
-    raise IncorrectUsernameOrPassword
+    raise IncorrectUsernameOrPassword(
+        status.HTTP_404_NOT_FOUND,
+        detail="Incorrect username or password."
+    )

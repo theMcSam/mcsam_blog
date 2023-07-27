@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, HTTPException, Request, Depends, status
 from blog.models import Post, Comment, User
 from blog.database import db_session
@@ -31,28 +33,34 @@ def verify_token(req: Request):
 @blog.post("/")
 def create_blog_post(blog_post: CreateBlogPost, req: Request, authorized: bool = Depends(verify_token)):
     if not authorized:
-        raise UnauthorizedUser
+        raise UnauthorizedUser(
+            status.HTTP_401_UNAUTHORIZED,
+            "You are not authorized to perform this action."
+        )
 
     user_id = get_user_id_from_token(req.headers["Authorization"])
 
-    post_id = uuid4()
-
     if blog_post.title == "":
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Missing form items.")
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            "Missing form items."
+        )
 
-    post = Post(post_id, title=blog_post.title, post_author=user_id, post_content=blog_post.content)
+    post = Post(title=blog_post.title, post_author=user_id, post_content=blog_post.content)
 
     db_session.add(post)
     db_session.commit()
+    db_session.refresh(post)
 
-    return {
-        "msg": "Post created successfully.",
-        "id": post_id
-    }
+    return post
 
 
-@blog.get("/{post_id}")
-def get_blog_post(post_id: str):
+@blog.get("/")
+def get_blog_post(post_id: uuid.UUID | None = None):
+    if not post_id:
+        posts = db_session.query(Post).all()
+        return posts
+
     post = db_session.query(Post).filter(Post.post_id == post_id).first()
     if post:
         post.views += 1
@@ -73,16 +81,13 @@ def get_blog_post(post_id: str):
             } if comments != [] else comments
         }
 
-    raise PostNotFound
+    raise PostNotFound(
+        status.HTTP_404_NOT_FOUND,
+        "Post not found."
+    )
 
 
-@blog.get("/get-all-posts")
-def get_all_blog_posts():
-    posts = db_session.query(Post).all()
-    return posts
-
-
-@blog.patch("/update/{post_id}")
+@blog.patch("/{post_id}")
 def update_blog_post(post_id, post: UpdateBlogPost, req: Request, authorized: bool = Depends(verify_token)):
     if authorized:
         user_id = get_user_id_from_token(req.headers["Authorization"])
@@ -90,10 +95,16 @@ def update_blog_post(post_id, post: UpdateBlogPost, req: Request, authorized: bo
         post_to_update = db_session.query(Post).get(post_id)
 
         if not post_to_update:
-            raise PostNotFound
+            raise PostNotFound(
+                status.HTTP_404_NOT_FOUND,
+                "Post not found."
+            )
 
         if not post_owner(user_id, post_id):
-            raise UnauthorizedUser
+            raise UnauthorizedUser(
+                status.HTTP_401_UNAUTHORIZED,
+                "You are not authorized to perform this action."
+            )
 
         # Update the attributes dynamically based on the provided values
         for attr, value in post.dict().items():
@@ -106,27 +117,42 @@ def update_blog_post(post_id, post: UpdateBlogPost, req: Request, authorized: bo
             "msg": "Updated successfully."
         }
 
-    raise UnauthorizedUser
+    raise UnauthorizedUser(
+        status.HTTP_401_UNAUTHORIZED,
+        "You are not authorized to perform this action."
+    )
 
 
-@blog.delete("/delete/{post_id}")
+@blog.delete("/{post_id}")
 def delete_blog_post(post_id, req: Request, authorized: bool = Depends(verify_token)):
     if authorized:
         user_id = get_user_id_from_token(req.headers["Authorization"])
 
         post = db_session.query(Post).get(post_id)
         if not post:
-            raise PostNotFound
+            raise PostNotFound(
+                status.HTTP_404_NOT_FOUND,
+                "Post not found."
+            )
 
         if post_owner(user_id, post_id):
             db_session.delete(post)
             db_session.commit()
 
-            raise DeletedSuccessfully
+            raise DeletedSuccessfully(
+                status.HTTP_204_NO_CONTENT,
+                "Deleted successfully."
+            )
 
-        raise UnauthorizedUser
+        raise UnauthorizedUser(
+            status.HTTP_401_UNAUTHORIZED,
+            "You are not authorized to perform this action."
+        )
 
-    raise UnauthorizedUser
+    raise UnauthorizedUser(
+        status.HTTP_401_UNAUTHORIZED,
+        "You are not authorized to perform this action."
+    )
 
 
 @blog.post("/comment/{post_id}")
@@ -135,22 +161,26 @@ def comment_on_blog_post(post_id, comment: CommentOnPost, req: Request, authoriz
         user_id = get_user_id_from_token(req.headers["Authorization"])
         comment_id = uuid4()
         if comment.content == "":
-            raise HTTPException(400, "Comment cannot be empty.")
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "Comment cannot be empty."
+            )
 
-        comment_obj = Comment(comment_id, comment.content, user_id, post_id)
+        comment_obj = Comment(comment=comment.content, user_id=user_id, post_id=post_id)
 
         db_session.add(comment_obj)
         db_session.commit()
+        db_session.refresh(comment_obj)
 
-        return {
-            "msg": "Comment created",
-            "comment_id": comment_id
-        }
+        return comment_obj
 
-    raise UnauthorizedUser
+    raise UnauthorizedUser(
+        status.HTTP_401_UNAUTHORIZED,
+        "You are not authorized to perform this action."
+    )
 
 
-@blog.patch("/comment/update/{comment_id}")
+@blog.patch("/comment/{comment_id}")
 def update_comment(comment_id, comment: UpdateComment, req: Request, authorized: bool = Depends(verify_token)):
     if authorized:
         user_id = get_user_id_from_token(req.headers["Authorization"])
@@ -158,36 +188,57 @@ def update_comment(comment_id, comment: UpdateComment, req: Request, authorized:
         comment_to_update = db_session.query(Comment).get(comment_id)
 
         if not comment_to_update:
-            raise HTTPException(status_code=400, detail="Comment does not exist in the database.")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Comment does not exist in the database."
+            )
 
         if comment_owner(user_id, comment_id):
             # Update the attributes dynamically based on the provided values
             comment_to_update.comment = comment.content
             db_session.commit()
+            db_session.refresh(comment_to_update)
 
-            return {
-                "msg": "Comment updated successfully",
-                "comment_id": comment_id
-            }
-        raise UnauthorizedUser
+            return comment_to_update
 
-    raise UnauthorizedUser
+        raise UnauthorizedUser(
+            status.HTTP_401_UNAUTHORIZED,
+            "You are not authorized to perform this action."
+        )
+
+    raise UnauthorizedUser(
+        status.HTTP_401_UNAUTHORIZED,
+        "You are not authorized to perform this action."
+    )
 
 
-@blog.delete("/comment/delete/{comment_id}")
+@blog.delete("/comment/{comment_id}")
 def delete_comment(comment_id, req: Request, authorized: bool = Depends(verify_token)):
     if authorized:
         user_id = get_user_id_from_token(req.headers["Authorization"])
         comment = db_session.query(Comment).get(comment_id)
 
         if not comment:
-            raise HTTPException(404, "Comment does not exist.")
+            raise HTTPException(
+                status.HTTP_401_UNAUTHORIZED,
+                "Comment does not exist."
+            )
 
         if comment_owner(user_id, comment_id):
             db_session.delete(comment)
             db_session.commit()
-            raise DeletedSuccessfully
 
-        raise UnauthorizedUser
+            raise DeletedSuccessfully(
+                status.HTTP_204_NO_CONTENT,
+                "Deleted successfully."
+            )
 
-    raise UnauthorizedUser
+        raise UnauthorizedUser(
+            status.HTTP_401_UNAUTHORIZED,
+            "You are not authorized to perform this action."
+        )
+
+    raise UnauthorizedUser(
+        status.HTTP_401_UNAUTHORIZED,
+        "You are not authorized to perform this action."
+    )

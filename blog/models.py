@@ -18,11 +18,6 @@ class User(Base):
     posts = relationship("Post", back_populates="user")
     comments = relationship("Comment", back_populates="user")
 
-    def __init__(self, username, password, email):
-        self.username = username
-        self.password = password
-        self.email = email
-
 
 class Post(Base):
     __tablename__ = "posts"
@@ -32,30 +27,21 @@ class Post(Base):
     post_content = Column(String, nullable=False)
     date_created = Column(DateTime, nullable=False, default=datetime.utcnow)
     post_author = Column(ForeignKey("users.user_id"))
+
     user = relationship("User", back_populates="posts")
     comments = relationship("Comment", back_populates="post")
-
-    def __init__(self, title, post_author, post_content):
-        self.title = title
-        self.post_author = post_author
-        self.post_content = post_content
 
 
 class Comment(Base):
     __tablename__ = "comments"
-    comment_id = Column(String, nullable=False, primary_key=True)
+    comment_id = Column(sqlalchemy.UUID, nullable=False, primary_key=True, default=uuid.uuid4)
     comment = Column(String, nullable=False)
-    date_created = Column(DateTime, nullable=False, default=datetime.utcnow)
     post_id = Column(ForeignKey("posts.post_id"))
-    post = relationship("Post", back_populates="comments")
-
     user_id = Column(ForeignKey("users.user_id"))
-    user = relationship("User", back_populates="comments")
+    date_created = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    def __init__(self, comment, user_id, post_id):
-        self.comment = comment
-        self.user_id = user_id
-        self.post_id = post_id
+    post = relationship("Post", back_populates="comments")
+    user = relationship("User", back_populates="comments")
 
 
 Base.metadata.create_all(bind=engine)
