@@ -56,7 +56,7 @@ def create_blog_post(blog_post: CreateBlogPost, req: Request, authorized: bool =
 
 
 @blog.get("/")
-def get_blog_post(post_id: uuid.UUID | None = None):
+def get_blog_post(post_id: str | None = None):
     if not post_id:
         posts = db_session.query(Post).all()
         return posts
