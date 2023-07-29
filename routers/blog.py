@@ -1,6 +1,5 @@
-import uuid
-
 from fastapi import APIRouter, HTTPException, Request, Depends, status
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from blog.models import Post, Comment, User
 from blog.database import db_session
 from schemas.post import CreateBlogPost, UpdateBlogPost

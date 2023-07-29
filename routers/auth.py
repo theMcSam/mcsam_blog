@@ -1,11 +1,9 @@
-from fastapi import APIRouter, status
-
+from fastapi import APIRouter, status, Depends
 from blog.errors import IncorrectUsernameOrPassword, DuplicateUsernames, DuplicateEmails
 from schemas.auth import UserLogin, UserSignUp
 from blog.database import db_session
 from blog.models import User
 
-from uuid import uuid4
 import os
 import bcrypt
 import jwt
@@ -24,9 +22,8 @@ def login(user: UserLogin):
         token = jwt.encode(jwt_payload, JWT_SECRET_KEY, algorithm="HS256")
 
         return {
-            "msg": "Logged in successfully.",
-            "user_id": user_obj.user_id,
-            "token": token
+            "access_token": token,
+            "token_type": "bearer"
         }
 
     raise IncorrectUsernameOrPassword(
@@ -61,7 +58,7 @@ def sign_up(user: UserSignUp):
     db_session.refresh(user)
 
     return {
-        "user_id": user.user_id,
+        "user_id": str(user.user_id),
         "username": user.username,
         "email": user.email,
         "date_created": user.date_created
